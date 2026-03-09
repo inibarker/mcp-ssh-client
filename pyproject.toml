@@ -35,9 +35,5 @@ source = ["src"]
 omit = ["*/__init__.py", "*/tests/*"] # Exclude tests and package init files
 
 [build-system]
-
-mcp-ssh-client = "mcp_ssh_client.server:main"
-
-[build-system]
 requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
