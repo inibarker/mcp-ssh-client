@@ -43,6 +43,30 @@ Add the following to your `claude_desktop_config.json`:
 }
 ```
 
+## Testing
+The project includes both unit and integration tests.
+
+### Unit Tests
+Unit tests use mocking to verify the tool logic without requiring a real SSH server.
+```bash
+python -m unittest tests/test_server.py
+```
+
+### Integration Tests (Docker)
+Integration tests run against a real OpenSSH server in a Docker container.
+1. **Start the test server:**
+   ```bash
+   docker compose -f tests/docker-compose.test.yml up -d --build
+   ```
+2. **Run the tests:**
+   ```bash
+   python -m unittest tests/test_integration.py
+   ```
+3. **Clean up:**
+   ```bash
+   docker compose -f tests/docker-compose.test.yml down
+   ```
+
 ## Development Conventions
 ### Automation with Gemini CLI
 The project is configured to use Gemini CLI for several automated tasks. Maintainers can interact with Gemini via GitHub issue comments using the following commands:

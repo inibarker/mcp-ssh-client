@@ -1,0 +1,12 @@
+services:
+  ssh-server:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.ssh
+    ports:
+      - "2222:22"
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "22"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
