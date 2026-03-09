@@ -30,6 +30,8 @@ python_version = "3.12"
 strict = true
 ignore_missing_imports = true
 
+[project.scripts]
+mcp-ssh-client = "mcp_ssh_client.server:main"
 [tool.coverage.run]
 source = ["src"]
 omit = ["*/__init__.py", "*/tests/*"] # Exclude tests and package init files
