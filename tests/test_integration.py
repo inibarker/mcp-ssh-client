@@ -1,7 +1,9 @@
-import unittest
-import time
 import socket
+import time
+import unittest
+
 from mcp_ssh_client.server import execute_command
+
 
 class TestSSHIntegration(unittest.TestCase):
     HOST = "127.0.0.1"
@@ -10,7 +12,7 @@ class TestSSHIntegration(unittest.TestCase):
     PASS = "testpass"
 
     @classmethod
-    def setUpClass(cls):
+    def setUpClass(cls) -> None:
         """Wait for the SSH server to be ready."""
         max_retries = 10
         for i in range(max_retries):
@@ -18,33 +20,34 @@ class TestSSHIntegration(unittest.TestCase):
                 with socket.create_connection((cls.HOST, cls.PORT), timeout=2):
                     print("\nSSH server is ready!")
                     return
-            except (ConnectionRefusedError, socket.timeout):
+            except (ConnectionRefusedError, TimeoutError):
                 print(f"Waiting for SSH server... (retry {i+1}/{max_retries})")
                 time.sleep(2)
         raise RuntimeError("SSH server did not become ready in time.")
 
-    def test_real_ssh_command(self):
+    def test_real_ssh_command(self) -> None:
         """Test executing a command on a real SSH server (Docker)."""
         result = execute_command(
             host=self.HOST,
             port=self.PORT,
             username=self.USER,
             password=self.PASS,
-            command="whoami"
+            command="whoami",
         )
         self.assertEqual(result.strip(), "testuser")
 
-    def test_hostname_command(self):
+    def test_hostname_command(self) -> None:
         """Test another command."""
         result = execute_command(
             host=self.HOST,
             port=self.PORT,
             username=self.USER,
             password=self.PASS,
-            command="hostname"
+            command="hostname",
         )
         # In Docker it will return the container ID, but it shouldn't be empty
         self.assertTrue(len(result.strip()) > 0)
+
 
 if __name__ == "__main__":
     unittest.main()

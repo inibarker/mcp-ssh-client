@@ -1,6 +1,7 @@
+import logging
+
 import paramiko
 from mcp.server.fastmcp import FastMCP
-import logging
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -10,15 +11,17 @@ logger = logging.getLogger("mcp-ssh-client")
 mcp = FastMCP("SSH Client")
 
 @mcp.tool()
-def execute_command(host: str, username: str, command: str, password: str = None, port: int = 22) -> str:
+def execute_command(
+    host: str, username: str, command: str, password: str | None = None, port: int = 22
+) -> str:
     """
     Executes a command on a remote host via SSH.
-    
+
     Args:
         host: The hostname or IP address of the remote server.
         username: The SSH username.
         command: The shell command to execute.
-        password: The SSH password (optional if using keys, but currently only password is supported in this tool).
+        password: The SSH password (optional if using keys).
         port: The SSH port (default 22).
     """
     logger.info(f"Executing command on {host}: {command}")
@@ -41,7 +44,7 @@ def execute_command(host: str, username: str, command: str, password: str = None
     finally:
         client.close()
 
-def main():
+def main() -> None:
     mcp.run()
 
 if __name__ == "__main__":
