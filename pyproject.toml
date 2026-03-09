@@ -1,0 +1,18 @@
+[project]
+name = "mcp-ssh-client"
+version = "0.1.0"
+description = "MCP server for SSH client interactions"
+authors = [{ name = "Gemini CLI" }]
+dependencies = [
+    "mcp",
+    "paramiko",
+    "pydantic",
+]
+requires-python = ">=3.10"
+
+[project.scripts]
+mcp-ssh-client = "mcp_ssh_client.server:main"
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
