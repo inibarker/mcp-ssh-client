@@ -1,3 +1,4 @@
+import io
 import logging
 
 import paramiko
@@ -10,9 +11,15 @@ logger = logging.getLogger("mcp-ssh-client")
 # Initialize FastMCP server
 mcp = FastMCP("SSH Client")
 
+
 @mcp.tool()
 def execute_command(
-    host: str, username: str, command: str, password: str | None = None, port: int = 22
+    host: str,
+    username: str,
+    command: str,
+    password: str | None = None,
+    private_key: str | None = None,
+    port: int = 22,
 ) -> str:
     """
     Executes a command on a remote host via SSH.
@@ -22,20 +29,38 @@ def execute_command(
         username: The SSH username.
         command: The shell command to execute.
         password: The SSH password (optional if using keys).
+        private_key: The SSH private key as a string (optional).
         port: The SSH port (default 22).
     """
     logger.info(f"Executing command on {host}: {command}")
-    
+
     client = paramiko.SSHClient()
     client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    
+
+    pkey: paramiko.PKey | None = None
+    if private_key:
+        try:
+            # Try to load as a private key string
+            pkey = paramiko.RSAKey.from_private_key(io.StringIO(private_key))
+        except Exception:
+            try:
+                pkey = paramiko.Ed25519Key.from_private_key(io.StringIO(private_key))
+            except Exception as e:
+                return f"Error loading private key: {str(e)}"
+
     try:
-        client.connect(hostname=host, port=port, username=username, password=password)
+        client.connect(
+            hostname=host,
+            port=port,
+            username=username,
+            password=password,
+            pkey=pkey,
+        )
         stdin, stdout, stderr = client.exec_command(command)
-        
-        output = stdout.read().decode('utf-8')
-        error = stderr.read().decode('utf-8')
-        
+
+        output = stdout.read().decode("utf-8")
+        error = stderr.read().decode("utf-8")
+
         if error:
             return f"Output:\n{output}\nErrors:\n{error}"
         return output
@@ -44,8 +69,10 @@ def execute_command(
     finally:
         client.close()
 
+
 def main() -> None:
     mcp.run()
+
 
 if __name__ == "__main__":
     main()
