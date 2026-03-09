@@ -15,6 +15,7 @@ dev = [
     "ruff",
     "mypy",
     "types-paramiko",
+    "coverage",
 ]
 
 [tool.ruff]
@@ -31,6 +32,9 @@ ignore_missing_imports = true
 
 [project.scripts]
 mcp-ssh-client = "mcp_ssh_client.server:main"
+[tool.coverage.run]
+source = ["src"]
+omit = ["*/__init__.py", "*/tests/*"] # Exclude tests and package init files
 
 [build-system]
 requires = ["setuptools>=61.0"]
