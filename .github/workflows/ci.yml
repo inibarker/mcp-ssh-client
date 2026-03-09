@@ -35,12 +35,6 @@ jobs:
     - name: Run Type Checking (Mypy)
       run: mypy src/ tests/
 
-    - name: Run Linting (Ruff)
-      run: ruff check src/ tests/
-
-    - name: Run Type Checking (Mypy)
-      run: mypy src/ tests/
-
     - name: Run Unit Tests with Coverage
       run: |
         coverage run -m unittest tests/test_server.py
