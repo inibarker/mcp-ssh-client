@@ -28,7 +28,11 @@ class TestSSHServer(unittest.TestCase):
         # Assertions
         self.assertEqual(result, "Hello from remote server")
         mock_client_instance.connect.assert_called_with(
-            hostname="example.com", port=22, username="testuser", password="password"
+            hostname="example.com",
+            port=22,
+            username="testuser",
+            password="password",
+            pkey=None,
         )
         mock_client_instance.exec_command.assert_called_with("echo 'Hello from remote server'")
 
@@ -67,6 +71,39 @@ class TestSSHServer(unittest.TestCase):
 
         # Assertions
         self.assertIn("Error connecting or executing command: Connection refused", result)
+
+    @patch("paramiko.Ed25519Key.from_private_key")
+    @patch("paramiko.SSHClient")
+    def test_execute_command_with_key(
+        self, mock_ssh_client: MagicMock, mock_key: MagicMock
+    ) -> None:
+        # Setup mock
+        mock_client_instance = mock_ssh_client.return_value
+        mock_stdout = MagicMock()
+        mock_stdout.read.return_value = b"Key auth success"
+        mock_stderr = MagicMock()
+        mock_stderr.read.return_value = b""
+
+        mock_client_instance.exec_command.return_value = (None, mock_stdout, mock_stderr)
+        mock_key_instance = mock_key.return_value
+
+        # Call the tool
+        result = execute_command(
+            host="example.com",
+            username="testuser",
+            command="whoami",
+            private_key="DUMMY-KEY-CONTENT",
+        )
+
+        # Assertions
+        self.assertEqual(result, "Key auth success")
+        mock_client_instance.connect.assert_called_with(
+            hostname="example.com",
+            port=22,
+            username="testuser",
+            password=None,
+            pkey=mock_key_instance,
+        )
 
 if __name__ == '__main__':
     unittest.main()
