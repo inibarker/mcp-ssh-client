@@ -16,11 +16,56 @@ This document provides context and guidelines for interacting with the `mcp-ssh-
 - `GEMINI.md`: This file, providing instructions and project context.
 
 ## Building and Running
-> [!IMPORTANT]
-> The implementation is in its initial stages. Source code and build scripts are yet to be added.
+The implementation uses **Python 3.10+** with the **Model Context Protocol (MCP) Python SDK** and `FastMCP`.
 
-- **TODO:** Identify the implementation language (likely Node.js or Python) and add corresponding build/run instructions here once `package.json` or `pyproject.toml` is created.
-- **Standard MCP Pattern:** Once implemented, the server will likely be run using a command like `npx mcp-ssh-client` or `python -m mcp_ssh_client`.
+### Setup
+Ensure you have Python installed. You can install the dependencies using:
+```bash
+pip install .
+```
+
+### Running the Server
+To run the server locally:
+```bash
+python -m mcp_ssh_client.server
+```
+
+### Configuration for Claude Desktop
+Add the following to your `claude_desktop_config.json`:
+```json
+{
+  "mcpServers": {
+    "mcp-ssh-client": {
+      "command": "python",
+      "args": ["-m", "mcp_ssh_client.server"]
+    }
+  }
+}
+```
+
+## Testing
+The project includes both unit and integration tests.
+
+### Unit Tests
+Unit tests use mocking to verify the tool logic without requiring a real SSH server.
+```bash
+python -m unittest tests/test_server.py
+```
+
+### Integration Tests (Docker)
+Integration tests run against a real OpenSSH server in a Docker container.
+1. **Start the test server:**
+   ```bash
+   docker compose -f tests/docker-compose.test.yml up -d --build
+   ```
+2. **Run the tests:**
+   ```bash
+   python -m unittest tests/test_integration.py
+   ```
+3. **Clean up:**
+   ```bash
+   docker compose -f tests/docker-compose.test.yml down
+   ```
 
 ## Development Conventions
 ### Automation with Gemini CLI
@@ -30,10 +75,13 @@ The project is configured to use Gemini CLI for several automated tasks. Maintai
 - `!gemini /triage`: (Internal) Used by workflows for issue labeling.
 
 ### Coding Standards
-- **Wait for Implementation:** Standards for naming, typing, and testing will be established once the core source code is scaffolded.
+- **Implementation Language:** Python 3.10+
+- **MCP Framework:** `mcp-sdk-python` (FastMCP)
+- **SSH Library:** `paramiko`
 - **Security First:** Given the project involves SSH and remote system access, security-centric coding (input validation, credential handling) is a top priority.
+- **Tools over Scripts:** Prefer defining tools via `@mcp.tool()` for AI interaction.
 
 ## Next Steps for the AI Assistant
-1. **Scaffolding:** Help the user decide on a tech stack (e.g., TypeScript/Node.js or Python).
-2. **Implementation:** Create the entry point for the MCP server and implement basic SSH connectivity.
-3. **Validation:** Set up a testing environment (e.g., using a mock SSH server or a local Docker container) to verify connectivity.
+1. **Refinement:** Add support for SSH key authentication in addition to passwords.
+2. **Features:** Implement more tools (e.g., file upload/download via SCP/SFTP).
+3. **Validation:** Set up a testing environment (e.g., using a local Docker container) to verify connectivity.
